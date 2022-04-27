@@ -78,13 +78,13 @@ class MDPDF(commands.Cog):
         pure_name = filename.removesuffix(".md")
         marked_opt = '{"gfm": true}'
         marked_json = json.dumps(marked_opt)
-        pdf_opt = '{"format": "A4", "margin": "15mm", "printBackground": true}'
-        pdt_json = json.dumps(pdf_opt)
+        pdf_opt = '{"format": "A4", "margin": "15mm", "printBackground": true, "displayHeaderFooter": true}'
+        pdf_json = json.dumps(pdf_opt)
         launch_opt = '{"args": ["--no-sandbox","--disable-setuid-sandbox"],"executablePath": "/usr/bin/google-chrome-stable"}'
         launch_json = json.dumps(launch_opt)
         try:
             subprocess.run(
-                f"npx md-to-pdf --stylesheet styles/github-markdown.css --highlight-style github --marked-options {marked_json} --launch-options {launch_json} --pdf-options {pdt_json} {filename}",
+                f"npx md-to-pdf --stylesheet styles/github-markdown.css --highlight-style github --marked-options {marked_json} --launch-options {launch_json} --pdf-options {pdf_json} {filename}",
                 shell=True,
             )
         except subprocess.CalledProcessError as e:
