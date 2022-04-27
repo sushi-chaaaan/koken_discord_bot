@@ -40,5 +40,4 @@ def getMyLogger(name):
     logger.addHandler(streamHandler)
     logger.addHandler(file_handler)
     logger.addHandler(discord_handler)
-    logger.propagate = False
     return logger

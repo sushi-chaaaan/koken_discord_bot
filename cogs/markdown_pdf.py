@@ -6,10 +6,14 @@ from asyncio.log import logger
 import discord
 from discord.commands import slash_command
 from discord.ext import commands
-from ids import guild_ids
+from dotenv import load_dotenv
 from logger import getMyLogger
 
+load_dotenv()
+
 looger = getMyLogger(__name__)
+
+guild_ids = [os.environ["GUILD_ID"], os.environ["TEST_GUILD_ID"]]
 
 
 class MDPDF(commands.Cog):
@@ -26,21 +30,40 @@ class MDPDF(commands.Cog):
             required=True,
         ),
     ):
-        await ctx.defer()
+        await ctx.interaction.response.defer(ephemeral=True)
+
+        # return if filetype is not markdown
         if not attachment.filename.endswith(".md"):
-            await ctx.respond("MarkDownファイルを添付してください。", ephemeral=True)
-        await attachment.save(f"tmp/{attachment.filename}")
-        pure_name = attachment.filename.removesuffix(".md")
-        result = self.md2html_md_to_pdf(f"tmp/{attachment.filename}")
-        if not result:
-            await ctx.respond("実行に失敗しました", ephemeral=True)
+            await ctx.respond(
+                content="MarkDown形式ではないファイルが添付されました。",
+                ephemeral=True,
+            )
             return
+
+        # convert markdown to pdf
+        await attachment.save(f"./tmp/{attachment.filename}")
+        pure_name = attachment.filename.removesuffix(".md")
+        result = self.md2html_md_to_pdf(f"./tmp/{attachment.filename}")
+
+        # response (failed)
+        if not result:
+            await ctx.respond(
+                content="実行に失敗しました",
+                ephemeral=True,
+            )
+            return
+
+        # response (success)
         try:
-            await ctx.respond(f"{pure_name}.pdfを作成しました。", file=discord.File(result))
+            await ctx.respond(
+                content="pdfファイルへの変換に成功しました。",
+                file=discord.File(result),
+                ephemeral=True,
+            )
         except Exception:
             logger.exception(f"Failed to send file [{result}]")
         finally:
-            files = [f"tmp/{attachment.filename}", result]
+            files = [f"./tmp/{attachment.filename}", result]
             for f in files:
                 self.delete_file(f)
 
