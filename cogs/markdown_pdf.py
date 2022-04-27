@@ -30,6 +30,7 @@ class MDPDF(commands.Cog):
             required=True,
         ),
     ):
+        """MarkdownファイルをPDFに変換します。"""
         await ctx.interaction.response.defer(ephemeral=True)
 
         # return if filetype is not markdown
